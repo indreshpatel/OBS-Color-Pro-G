@@ -1,4 +1,4 @@
-#include <obs-module.h>
+// clang-format off #include <obs-module.h>
 #include <graphics/vec4.h>
 #include <graphics/vec3.h>
 #include "plugin.h"
