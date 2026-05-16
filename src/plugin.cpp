@@ -185,7 +185,9 @@ struct obs_source_info color_pro_filter_info = []() {
 // 7. MISSING OBS LOAD COMMANDS ADDED! (Warna plugin OBS mein load hi nahi hota)
 OBS_DECLARE_MODULE()
 
-bool obs_module_load(void) {
-    obs_register_source(&color_pro_filter_info);
-    return true;
+extern "C" {
+    bool obs_module_load(void) {
+        obs_register_source(&color_pro_filter_info);
+        return true;
+    }
 }
