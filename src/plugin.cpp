@@ -183,9 +183,18 @@ struct obs_source_info color_pro_filter_info = []() {
 }();
 
 // 7. MISSING OBS LOAD COMMANDS ADDED! (Warna plugin OBS mein load hi nahi hota)
-OBS_DECLARE_MODULE()
+// --- File ka aakhri hissa ---
 
-MODULE_EXPORT bool obs_module_load(void) {
+OBS_DECLARE_MODULE()
+OBS_MODULE_AUTHOR("Prince Studio")
+
+bool obs_module_load(void) {
     obs_register_source(&color_pro_filter_info);
     return true;
 }
+
+void obs_module_unload(void) {
+    // Plugin band hone par yahan cleanup hota hai
+}
+
+// ---------------------------
