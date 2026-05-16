@@ -166,19 +166,21 @@ obs_properties_t *color_pro_get_properties(void *data) {
     return props;
 }
 
-// 6. Fixed Designator Order Error (C++ rules)
-struct obs_source_info color_pro_filter_info = {
-    .id = "color_pro_filter",
-    .type = OBS_SOURCE_TYPE_FILTER,
-    .output_flags = OBS_SOURCE_VIDEO,
-    .get_name = color_pro_get_name,
-    .create = color_pro_create,
-    .destroy = color_pro_destroy,
-    .get_defaults = color_pro_get_defaults,
-    .get_properties = color_pro_get_properties,
-    .update = color_pro_update,
-    .video_render = color_pro_video_render,
-};
+// 6. Fixed Windows C7555 Error using C++ Lambda Initialization
+struct obs_source_info color_pro_filter_info = []() {
+    struct obs_source_info info = {};
+    info.id = "color_pro_filter";
+    info.type = OBS_SOURCE_TYPE_FILTER;
+    info.output_flags = OBS_SOURCE_VIDEO;
+    info.get_name = color_pro_get_name;
+    info.create = color_pro_create;
+    info.destroy = color_pro_destroy;
+    info.get_defaults = color_pro_get_defaults;
+    info.get_properties = color_pro_get_properties;
+    info.update = color_pro_update;
+    info.video_render = color_pro_video_render;
+    return info;
+}();
 
 // 7. MISSING OBS LOAD COMMANDS ADDED! (Warna plugin OBS mein load hi nahi hota)
 OBS_DECLARE_MODULE()
