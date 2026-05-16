@@ -1,0 +1,103 @@
+uniform float4x4 ViewProj;
+uniform texture2d image;
+
+uniform float3 temp_tint_sat; // x: temp, y: tint, z: sat
+uniform float2 exposure_contrast; // x: exposure, y: contrast
+uniform float4 tone_adjust; // x: highlights, y: shadows, z: whites, w: blacks
+uniform float3 bal_shadows;
+uniform float3 bal_midtones;
+uniform float3 bal_highlights;
+
+sampler_state textureSampler {
+    Filter    = Linear;
+    AddressU  = Clamp;
+    AddressV  = Clamp;
+};
+
+struct VertData {
+    float4 pos : POSITION;
+    float2 uv  : TEXCOORD0;
+};
+
+VertData VSDefault(VertData v_in) {
+    VertData v_out;
+    v_out.pos = mul(float4(v_in.pos.xyz, 1.0), ViewProj);
+    v_out.uv  = v_in.uv;
+    return v_out;
+}
+
+float3 ApplyTemperature(float3 color, float temp, float tint) {
+    // Simplified Kelvin-like adjustment
+    float3 warm = float3(1.0, 0.9, 0.8);
+    float3 cool = float3(0.8, 0.9, 1.0);
+    float3 t_color = lerp(float3(1,1,1), (temp > 0) ? warm : cool, abs(temp));
+    
+    // Tint adjustment (Green/Magenta)
+    float3 tint_color = float3(1.0 + tint, 1.0 - tint, 1.0 + tint);
+    
+    return color * t_color * tint_color;
+}
+
+float3 ApplyTone(float3 color, float4 tone) {
+    float luma = dot(color, float3(0.299, 0.587, 0.114));
+    
+    // Highlights (x) and Shadows (y)
+    float h_mask = smoothstep(0.5, 1.0, luma);
+    float s_mask = 1.0 - smoothstep(0.0, 0.5, luma);
+    
+    color += color * tone.x * h_mask;
+    color += color * tone.y * s_mask;
+    
+    // Whites (z) and Blacks (w)
+    color = saturate(color + tone.z * h_mask);
+    color = saturate(color + tone.w * s_mask);
+    
+    return color;
+}
+
+float3 ApplyColorBalance(float3 color, float3 s, float3 m, float3 h) {
+    float luma = dot(color, float3(0.299, 0.587, 0.114));
+    
+    float s_weight = 1.0 - smoothstep(0.0, 0.5, luma);
+    float h_weight = smoothstep(0.5, 1.0, luma);
+    float m_weight = 1.0 - s_weight - h_weight;
+    
+    color += s * s_weight;
+    color += m * m_weight;
+    color += h * h_weight;
+    
+    return color;
+}
+
+float4 PSColorPro(VertData v_in) : TARGET {
+    float4 rgba = image.Sample(textureSampler, v_in.uv);
+    float3 color = rgba.rgb;
+
+    // 1. Exposure
+    color *= pow(2.0, exposure_contrast.x);
+
+    // 2. Temperature & Tint
+    color = ApplyTemperature(color, temp_tint_sat.x, temp_tint_sat.y);
+
+    // 3. Contrast
+    color = (color - 0.5) * exposure_contrast.y + 0.5;
+
+    // 4. Tone Adjustments
+    color = ApplyTone(color, tone_adjust);
+
+    // 5. Color Balance
+    color = ApplyColorBalance(color, bal_shadows - 1.0, bal_midtones - 1.0, bal_highlights - 1.0);
+
+    // 6. Saturation
+    float luma = dot(color, float3(0.299, 0.587, 0.114));
+    color = lerp(float3(luma, luma, luma), color, temp_tint_sat.z);
+
+    return float4(saturate(color), rgba.a);
+}
+
+technique Draw {
+    pass {
+        vertex_shader = VSDefault(v_in);
+        pixel_shader  = PSColorPro(v_in);
+    }
+}
