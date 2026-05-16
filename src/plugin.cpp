@@ -1,3 +1,6 @@
+#include <obs-module.h>
+#include <graphics/vec4.h>
+#include <graphics/vec3.h>
 #include "plugin.h"
 #include <util/platform.h>
 #include <util/dstr.h>
@@ -15,7 +18,9 @@
 #define SETTING_BAL_MIDTONES  "bal_midtones"
 #define SETTING_BAL_HIGHLIGHTS "bal_highlights"
 
+// 1. Fixed Unused Parameter error
 const char *color_pro_get_name(void *unused) {
+    UNUSED_PARAMETER(unused);
     return "Color Pro Filter";
 }
 
@@ -84,12 +89,20 @@ void color_pro_update(void *data, obs_data_t *settings) {
     uint32_t c_midtones = (uint32_t)obs_data_get_int(settings, SETTING_BAL_MIDTONES);
     uint32_t c_highlights = (uint32_t)obs_data_get_int(settings, SETTING_BAL_HIGHLIGHTS);
 
-    vec3_from_rgba(&filter->balance_shadows, c_shadows);
-    vec3_from_rgba(&filter->balance_midtones, c_midtones);
-    vec3_from_rgba(&filter->balance_highlights, c_highlights);
+    // 2. Fixed vec3_from_rgba Error using standard OBS vec4 functions
+    struct vec4 t_shadows, t_midtones, t_highlights;
+    vec4_from_rgba(&t_shadows, c_shadows);
+    vec4_from_rgba(&t_midtones, c_midtones);
+    vec4_from_rgba(&t_highlights, c_highlights);
+
+    vec3_set(&filter->balance_shadows, t_shadows.x, t_shadows.y, t_shadows.z);
+    vec3_set(&filter->balance_midtones, t_midtones.x, t_midtones.y, t_midtones.z);
+    vec3_set(&filter->balance_highlights, t_highlights.x, t_highlights.y, t_highlights.z);
 }
 
+// 3. Fixed unused effect parameter error
 void color_pro_video_render(void *data, gs_effect_t *effect) {
+    UNUSED_PARAMETER(effect); 
     struct color_pro_filter_data *filter = (struct color_pro_filter_data *)data;
     if (!filter->effect) {
         obs_source_skip_video_filter(filter->context);
@@ -114,14 +127,16 @@ void color_pro_video_render(void *data, gs_effect_t *effect) {
     gs_effect_set_vec3(filter->param_bal_midtones, &filter->balance_midtones);
     gs_effect_set_vec3(filter->param_bal_highlights, &filter->balance_highlights);
 
+    // 4. Fixed gs_effect_render Error (obs_source_process_filter_end handles it)
     obs_source_process_filter_begin(filter->context, GS_RGBA, OBS_ALLOW_DIRECT_RENDERING);
-    gs_effect_render(filter->effect, "Draw");
     obs_source_process_filter_end(filter->context, filter->effect, 0, 0);
 
     obs_leave_graphics();
 }
 
+// 5. Fixed unused data parameter error
 obs_properties_t *color_pro_get_properties(void *data) {
+    UNUSED_PARAMETER(data);
     obs_properties_t *props = obs_properties_create();
 
     // Color Adjustments Group
@@ -151,6 +166,7 @@ obs_properties_t *color_pro_get_properties(void *data) {
     return props;
 }
 
+// 6. Fixed Designator Order Error (C++ rules)
 struct obs_source_info color_pro_filter_info = {
     .id = "color_pro_filter",
     .type = OBS_SOURCE_TYPE_FILTER,
@@ -158,8 +174,16 @@ struct obs_source_info color_pro_filter_info = {
     .get_name = color_pro_get_name,
     .create = color_pro_create,
     .destroy = color_pro_destroy,
-    .update = color_pro_update,
-    .get_properties = color_pro_get_properties,
     .get_defaults = color_pro_get_defaults,
+    .get_properties = color_pro_get_properties,
+    .update = color_pro_update,
     .video_render = color_pro_video_render,
 };
+
+// 7. MISSING OBS LOAD COMMANDS ADDED! (Warna plugin OBS mein load hi nahi hota)
+OBS_DECLARE_MODULE()
+
+bool obs_module_load(void) {
+    obs_register_source(&color_pro_filter_info);
+    return true;
+}
