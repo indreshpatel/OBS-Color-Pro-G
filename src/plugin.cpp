@@ -188,13 +188,11 @@ struct obs_source_info color_pro_filter_info = []() {
 OBS_DECLARE_MODULE()
 OBS_MODULE_AUTHOR("Prince Studio")
 
-bool obs_module_load(void) {
+MODULE_EXPORT bool obs_module_load(void) {
     obs_register_source(&color_pro_filter_info);
     return true;
 }
 
-void obs_module_unload(void) {
-    // Plugin band hone par yahan cleanup hota hai
+MODULE_EXPORT void obs_module_unload(void) {
+    // Plugin cleanup
 }
-
-// ---------------------------
