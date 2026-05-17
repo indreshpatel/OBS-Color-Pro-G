@@ -182,27 +182,7 @@ struct obs_source_info color_pro_filter_info = []() {
     return info;
 }();
 
-// 7. MISSING OBS LOAD COMMANDS ADDED! (Warna plugin OBS mein load hi nahi hota)
-// --- File ka aakhri hissa ---
-
-// 6. Fixed Windows C7555 Error using C++ Lambda Initialization
-struct obs_source_info color_pro_filter_info = []() {
-    struct obs_source_info info = {};
-    info.id = "color_pro_filter";
-    info.type = OBS_SOURCE_TYPE_FILTER;
-    info.output_flags = OBS_SOURCE_VIDEO;
-    info.get_name = color_pro_get_name;
-    info.create = color_pro_create;
-    info.destroy = color_pro_destroy;
-    info.get_defaults = color_pro_get_defaults;
-    info.get_properties = color_pro_get_properties;
-    info.update = color_pro_update;
-    info.video_render = color_pro_video_render;
-    return info;
-}();
-
 // 7. Naya Connection: Main file ko plugin bhejne ke liye
 extern "C" void register_color_pro_filter(void) {
     obs_register_source(&color_pro_filter_info);
 }
-// (Yahan aakhri line par ek Enter/Khali jagah zaroor rakhein Mac ke liye)
