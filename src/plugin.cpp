@@ -22,7 +22,7 @@
 // 1. Fixed Unused Parameter error
 const char *color_pro_get_name(void *unused) {
     UNUSED_PARAMETER(unused);
-    return "Color Pro Filter";
+    return "Indresh Color Pro Filter";
 }
 
 void color_pro_get_defaults(obs_data_t *settings) {
