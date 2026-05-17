@@ -33,11 +33,11 @@
     },
     "platformConfig": {
         "macos": {
-            "bundleId": "com.example.plugintemplate-for-obs"
+            "bundleId": "com.example.Indresh-Color-Pro-G"
         }
     },
-    "name": "OBS-Color-Pro-G",
-    "displayName": "Plugin Template for OBS",
+    "name": "Indresh-Color-Pro-G",
+    "displayName": "Indresh Color Pro",
     "version": "1.0.0",
     "author": "Golu Patel",
     "website": "https://example.com",

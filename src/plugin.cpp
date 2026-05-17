@@ -170,7 +170,7 @@ obs_properties_t *color_pro_get_properties(void *data) {
 // 6. Fixed Windows C7555 Error using C++ Lambda Initialization
 struct obs_source_info color_pro_filter_info = []() {
     struct obs_source_info info = {};
-    info.id = "color_pro_filter";
+    info.id = "Indrsh_color_pro_filter";
     info.type = OBS_SOURCE_TYPE_FILTER;
     info.output_flags = OBS_SOURCE_VIDEO;
     info.get_name = color_pro_get_name;
