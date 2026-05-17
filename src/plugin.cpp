@@ -182,7 +182,17 @@ struct obs_source_info color_pro_filter_info = []() {
     return info;
 }();
 
-// 7. Naya Connection: Main file ko plugin bhejne ke liye
-extern "C" void register_color_pro_filter(void) {
-    obs_register_source(&color_pro_filter_info);
+// 7. FINAL OBS LOAD COMMANDS (No plugin-main.c needed)
+OBS_DECLARE_MODULE()
+OBS_MODULE_AUTHOR("Prince Studio")
+
+extern "C" {
+    MODULE_EXPORT bool obs_module_load(void) {
+        obs_register_source(&color_pro_filter_info);
+        return true;
+    }
+
+    MODULE_EXPORT void obs_module_unload(void) {
+        // Plugin cleanup
+    }
 }
